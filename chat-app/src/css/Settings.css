@@ -1,0 +1,62 @@
+/* src/components/Settings.css */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: #fff !important;
+  padding: 20px;
+  border-radius: 8px;
+  position: relative;
+  max-width: 500px;
+  width: 100%;
+}
+
+.close-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  border: none;
+  background: transparent;
+  font-size: 24px;
+  cursor: pointer;
+  color: black;
+}
+
+h2 {
+  color: black !important;
+}
+
+.settings-label {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin: 20px;
+  color: black;
+}
+
+/* Correct CSS for checkbox input */
+.settings-label input[type="checkbox"] {
+  width: 15px;
+  height: 15px;
+}
+
+.settings-input,
+.settings-select {
+  margin-left: 10px;
+  padding: 5px;
+  width: calc(100% - 20px);
+}
+
+.settings-checkbox {
+  margin-left: 10px;
+}

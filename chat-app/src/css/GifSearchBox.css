@@ -1,0 +1,107 @@
+/* .gif-search-popup {
+    position: absolute;
+    bottom: 40px;
+    right: 10px;
+    
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000; /* Ensure it's above other content 
+  }
+  
+  .gif-search-popup > div {
+    background-color: rgba(0, 0, 0, 0.5);
+    padding: 20px;
+    border-radius: 8px;
+    position: relative;
+    overflow: auto; /* Allow scrolling if content is too large 
+    width: 400px ;
+  }
+  
+  .gif-search-close-button {
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    background: transparent;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+  }
+  .reactGiphySearchbox-componentWrapper{
+    width: 320px !important;
+    height: 450px;
+  }
+  .reactGiphySearchbox-listWrapper {
+    overflow-y: auto;
+    width: 265px;
+  } */
+
+  .gif-search-popup {
+    position: absolute;
+    bottom: 12%;
+    right: 10px;
+    padding: 20px;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    min-width: 300px;
+    max-width: 400px;
+  }
+  
+  .gif-search-close-button {
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    background: none;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .gif-search-close-button svg {
+    fill: #333;
+  }
+  
+  .gif-search-input {
+    margin-top: 20px;
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+  }
+  
+  .gif-search-button {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    border: none;
+    background: #007bff;
+    color: #fff;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .gif-search-button:hover {
+    background: #0056b3;
+  }
+  
+  .gif-results {
+    display: grid; /* Use grid layout */
+    grid-template-columns: repeat(2, 100px); /* Two columns, each 300px wide */
+    gap: 10px; /* Space between GIFs */
+    overflow-x: hidden; /* Hide horizontal scrolling */
+    overflow-y: auto; /* Enable vertical scrolling */
+    max-height: 300px; /* Set a maximum height to constrain vertical size */
+    padding: 10px; /* Optional: add padding for spacing */
+    border: 1px solid #ddd; /* Optional: add a border for visual separation */
+    border-radius: 8px; /* Optional: add rounded corners */
+  }
+  
+  .gif-result {
+    width: 100px; /* Set width of each GIF */
+    height: 100px; /* Set height of each GIF */
+    object-fit: cover; /* Ensure GIF covers the area without distortion */
+    cursor: pointer;
+    border-radius: 4px; /* Optional: add rounded corners for each GIF */
+  }

@@ -1,0 +1,152 @@
+import "../css/VoiceRecorder.css";
+import React, { useState, useEffect, useRef } from 'react';
+import { FaPause, FaStop, FaTrash, FaTimes } from 'react-icons/fa';
+import { VscSend } from "react-icons/vsc";
+import { useReactMediaRecorder } from "react-media-recorder";
+import { AudioPlayer } from 'react-audio-play';
+
+
+const VoiceRecorder = ({ onClose, handleSendFile }) => {
+  const [audioURL, setAudioURL] = useState("");
+  const [isRecording, setIsRecording] = useState(true);
+  const [isPaused, setIsPaused] = useState(false);
+  const [recordingTime, setRecordingTime] = useState(0);
+  const timerRef = useRef(null);
+
+  const {
+    startRecording,
+    resumeRecording,
+    stopRecording,
+    mediaBlobUrl,
+    clearBlobUrl,
+  } = useReactMediaRecorder({ audio: true });
+
+  useEffect(() => {
+    // Automatically start recording when the component mounts
+    startRecording();
+  }, [startRecording]);
+
+  useEffect(() => {
+    if (mediaBlobUrl) {
+      setAudioURL(mediaBlobUrl);
+    }
+  }, [mediaBlobUrl]);
+
+  useEffect(() => {
+    if (isRecording) {
+      timerRef.current = setInterval(() => {
+        setRecordingTime(prevTime => prevTime + 1);
+      }, 1000);
+    } else {
+      clearInterval(timerRef.current);
+    }
+
+    return () => clearInterval(timerRef.current);
+  }, [isRecording]);
+
+  const handleRecording = () => {
+    if (isRecording) {
+      if (isPaused) {
+        resumeRecording();
+        setIsPaused(false);
+      } else {
+        stopRecording();
+        setIsRecording(false);
+        setIsPaused(true); // Set isPaused to true after stopping
+      }
+    } else {
+      if (isPaused) {
+        resumeRecording();
+        setIsRecording(true);
+        setIsPaused(false);
+      } else {
+        startRecording();
+        setIsRecording(true);
+        setAudioURL(""); // Clear audio URL when starting new recording
+      }
+    }
+  };
+
+  const deleteRecording = () => {
+    setIsRecording(false);
+    setAudioURL("");
+    setRecordingTime(0);
+    clearBlobUrl();
+    setIsPaused(false); // Hide playback controls when deleting recording
+  };
+
+  const sendRecording = async () => {
+    if (audioURL) {
+      const response = await fetch(audioURL);
+      const blob = await response.blob();
+      const opusFile = new File([blob], "recording.opus", { type: "audio/ogg" });
+      handleSendFile(opusFile);
+      deleteRecording();
+      onClose(); // Close the component after sending the recording
+    } else {
+      alert("No recording to send.");
+    }
+  };
+
+  const formatTime = (seconds) => {
+    const minutes = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${minutes}:${secs < 10 ? `0${secs}` : secs}`;
+  };
+
+  const handleEnd = () => {
+    // Reset or stop the AudioPlayer when the audio ends
+    console.log("Audio ended");
+  };
+
+  return (
+    <div className="voice-recorder">
+      <div className="controls">
+        {isRecording && !isPaused && (
+          <button
+            className="recoding-btn"
+            onClick={handleRecording}
+            aria-label="Stop recording"
+          >
+            <FaStop />
+          </button>
+        )}
+        {isPaused && (
+          <button
+            className="recoding-btn"
+            onClick={handleRecording}
+            aria-label="Resume recording"
+          >
+            <FaPause />
+          </button>
+        )}
+        {!isRecording && isPaused && (
+          <>
+            <AudioPlayer
+              className="audio-playback"
+              onEnd={handleEnd}
+              src={audioURL}
+              controls
+            />
+            <button onClick={deleteRecording} className="trash-btn control-btn" aria-label="Delete recording">
+              <FaTrash />
+            </button>
+            <button onClick={sendRecording} className="control-btn" aria-label="Send recording">
+              <VscSend />
+            </button>
+          </>
+        )}
+      </div>
+      <button onClick={onClose} className="close-btn" aria-label="Close recorder">
+        <FaTimes />
+      </button>
+      {isRecording && !isPaused && (
+        <div className="timer">
+          {formatTime(recordingTime)}
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default VoiceRecorder;

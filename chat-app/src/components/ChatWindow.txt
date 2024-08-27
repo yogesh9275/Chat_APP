@@ -1,0 +1,224 @@
+import React, { useState } from "react";
+import { AudioPlayer } from "react-audio-play";
+import "../css/ChatWindow.css";
+import MessageInput from "./MessageInput";
+import emojiRegex from "emoji-regex";
+import {
+  FaFilePdf,
+  FaFileWord,
+  FaFileExcel,
+  FaFilePowerpoint,
+  FaFileAlt,
+} from "react-icons/fa"; // Import icons for different file types
+import VideoThumbnail from "./VideoThumbnail"; // Import the new VideoThumbnail component
+
+const ChatWindow = ({
+  messages,
+  handleSendMessage,
+  handleSendFile,
+  username,
+  chatName,
+  fileName,
+}) => {
+  const [message, setMessage] = useState("");
+  // console.log("FileName Given Prop: "+fileName);
+  // Handle sending a message
+  const onSendMessage = () => {
+    if (message.trim()) {
+      handleSendMessage(message);
+      setMessage("");
+    }
+  };
+
+  // Handle sending a file
+  const onSendFile = (fileData) => {
+    if (fileData) {
+      handleSendFile(fileData);
+    }
+  };
+
+  // Get the first letter of a string, capitalized
+  const firstLetter = (text) => text.charAt(0).toUpperCase();
+  const sendLetter = chatName.charAt(0).toUpperCase();
+
+  // Function to check if the message contains only emojis
+  const isOnlyEmojis = (text) => {
+    if (typeof text !== "string") return false;
+    const regex = emojiRegex();
+    return [...text].every((char) => regex.test(char));
+  };
+
+  // File Icons
+  const renderFileIcon = (fileName) => {
+    const fileExtension = fileName.split(".").pop().toLowerCase();
+    switch (fileExtension) {
+      case "pdf":
+        return <FaFilePdf size={50} color="#FF0000" />;
+      case "doc":
+      case "docx":
+        return <FaFileWord size={50} color="#0072C6" />;
+      case "xls":
+      case "xlsx":
+        return <FaFileExcel size={50} color="#217346" />;
+      case "ppt":
+      case "pptx":
+        return <FaFilePowerpoint size={50} color="#D24726" />;
+      default:
+        return <FaFileAlt size={50} color="#808080" />;
+    }
+  };
+  // Function to handle image download
+  const handleImageDownload = (fileContent, fileName) => {
+    const url = URL.createObjectURL(new Blob([fileContent]));
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = fileName;
+    link.click();
+    URL.revokeObjectURL(url); // Clean up the URL object after downloading
+  };
+
+  const handleAudioEnd = () => {
+    console.log('Audio Ended'); // Reset the audio player by clearing the src
+  };
+  return (
+    <div className="chat-window">
+      <div className="chat-header">
+        <div className="chat-avatar">{sendLetter}</div>
+        <div className="chat-info">
+          <div className="chat-name">{chatName}</div>
+          <div className="chat-status">Online</div>
+        </div>
+        <div className="chat-actions">
+          <button className="chat-action-button search-button">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="25"
+              height="25"
+              fill="currentColor"
+              className="bi bi-three-dots-vertical icon"
+              viewBox="0 0 16 16"
+            >
+              <path d="M9.5 13a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0m0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0m0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0" />
+            </svg>
+          </button>
+        </div>
+      </div>
+      <div className="chat-messages">
+        {messages.map((msg, index) => (
+          <div
+            key={index}
+            className={`chat-message ${
+              msg.data.sender === username ? "message sent" : "message received"
+            }`}
+          >
+            <div className="message-content">
+              <div className="message">
+                <div className="chat-avatar">
+                  {firstLetter(msg.data.sender)}
+                </div>
+                <div className="message-user">{msg.data.sender}</div>
+              </div>
+              {msg.type === "text" ? (
+                <div
+                  className="message-text"
+                  style={{
+                    fontSize: isOnlyEmojis(msg.data.text) ? "2em" : "1em",
+                  }}
+                >
+                  {msg.data.text}
+                </div>
+              ) : (
+                <div className="message-text">
+                  {msg.data.type === "image/gif" ? (
+                    <img
+                      src={URL.createObjectURL(msg.data.file)}
+                      alt="GIF"
+                      className="message-image"
+                    />
+                  ) : msg.data.fileName.match(/\.(mp3|opus)$/i) ? (
+                    <div className="audio-player-container">
+                      <AudioPlayer
+                        className="custom-audio-player"
+                        src={URL.createObjectURL(
+                          new Blob([msg.data.fileContent], {
+                            type: msg.data.mimeType || "audio/mpeg",
+                          })
+                        )}
+                        volumePlacement="bottom"
+                        type={msg.data.mimeType || "audio/mpeg"} // Fallback to "audio/mpeg" if mimeType is not provided
+                        onEnded={handleAudioEnd} // Handle audio end event
+                      />
+
+                      <a
+                        href={URL.createObjectURL(
+                          new Blob([msg.data.fileContent], {
+                            type: "audio/mpeg",
+                          })
+                        )}
+                        download="recording.mp3"
+                        className="download-btn"
+                        aria-label="Download recording"
+                      >
+                        Download
+                      </a>
+                    </div>
+                  ) : (
+                    <>
+                      {msg.data.fileName.match(/\.(mp4|mov|webm)$/i) ? (
+                        <VideoThumbnail
+                          fileContent={msg.data.fileContent}
+                          fileName={fileName}
+                        />
+                      ) : msg.data.fileName.match(
+                          /\.(jpg|jpeg|png|gif|webp)$/i
+                        ) ? (
+                        <img
+                          src={URL.createObjectURL(
+                            new Blob([msg.data.fileContent])
+                          )}
+                          alt={msg.data.fileName}
+                          className="message-image"
+                          onClick={() =>
+                            handleImageDownload(
+                              msg.data.fileContent,
+                              msg.data.fileName
+                            )
+                          }
+                        />
+                      ) : (
+                        <>
+                          {renderFileIcon(msg.data.fileName)}{" "}
+                          <a
+                            href={URL.createObjectURL(
+                              new Blob([msg.data.fileContent])
+                            )}
+                            download={msg.data.fileName}
+                            className={`download-link ${
+                              msg.data.sender === username ? "sent" : "received"
+                            }`}
+                          >
+                            {msg.data.fileName || "File"}
+                          </a>
+                        </>
+                      )}
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+      <MessageInput
+        message={message}
+        setMessage={setMessage} // Pass setMessage to MessageInput
+        handleSendMessage={onSendMessage} // Corrected prop name
+        handleSendFile={onSendFile}
+      />
+
+      {/* Render VideoPlayer with the selected video file */}
+    </div>
+  );
+};
+
+export default ChatWindow;

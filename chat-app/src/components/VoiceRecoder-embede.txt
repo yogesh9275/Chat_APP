@@ -1,0 +1,219 @@
+import "../css/VoiceRecorder.css";
+import React, { useState, useEffect, useRef } from "react";
+import { FaPause, FaStop, FaTrash, FaTimes } from "react-icons/fa";
+import { VscSend } from "react-icons/vsc";
+import { useReactMediaRecorder } from "react-media-recorder";
+import { AudioPlayer } from "react-audio-play";
+
+const VoiceRecorder = ({ onClose, handleSendFile }) => {
+  const [audioURL, setAudioURL] = useState("");
+  const [isRecording, setIsRecording] = useState(true);
+  const [isPaused, setIsPaused] = useState(false);
+  const [recordingTime, setRecordingTime] = useState(0);
+  const [recordingStartTime, setRecordingStartTime] = useState(null);
+  const timerRef = useRef(null);
+  const mediaStreamRef = useRef(null);
+
+  const {
+    startRecording,
+    resumeRecording,
+    stopRecording,
+    mediaBlobUrl,
+    clearBlobUrl,
+  } = useReactMediaRecorder({ audio: true });
+
+  useEffect(() => {
+    // Automatically start recording when the component mounts
+    startRecording();
+
+    // Access the media stream
+    navigator.mediaDevices.getUserMedia({ audio: true })
+      .then(stream => {
+        mediaStreamRef.current = stream;
+      })
+      .catch(error => console.error('Error accessing media devices.', error));
+
+    return () => {
+      // Stop the media stream when the component unmounts
+      if (mediaStreamRef.current) {
+        mediaStreamRef.current.getTracks().forEach(track => track.stop());
+      }
+    };
+  }, [startRecording]);
+
+  useEffect(() => {
+    if (mediaBlobUrl) {
+      setAudioURL(mediaBlobUrl);
+    }
+  }, [mediaBlobUrl]);
+
+  useEffect(() => {
+    if (isRecording) {
+      timerRef.current = setInterval(() => {
+        setRecordingTime(prevTime => prevTime + 1);
+      }, 1000);
+    } else {
+      clearInterval(timerRef.current);
+    }
+
+    return () => clearInterval(timerRef.current);
+  }, [isRecording]);
+
+  const handleRecording = () => {
+    if (isRecording) {
+      if (isPaused) {
+        console.log("Resuming recording...");
+        resumeRecording();
+        setIsPaused(false);
+        console.log("Recording resumed");
+      } else {
+        console.log("Stopping recording...");
+        stopRecording();
+        setIsRecording(false);
+        setIsPaused(true); // Set isPaused to true after stopping
+        console.log("Recording stopped");
+        // Stop the media stream
+        if (mediaStreamRef.current) {
+          mediaStreamRef.current.getTracks().forEach(track => track.stop());
+        }
+      }
+    } else {
+      if (isPaused) {
+        console.log("Resuming paused recording...");
+        resumeRecording();
+        setIsRecording(true);
+        setIsPaused(false);
+        console.log("Recording resumed from paused state");
+      } else {
+        console.log("Starting new recording...");
+        startRecording();
+        setIsRecording(true);
+        setAudioURL(""); // Clear audio URL when starting new recording
+        setRecordingStartTime(new Date()); // Set the start time
+        console.log("New recording started");
+      }
+    }
+  };
+
+  const deleteRecording = () => {
+    console.log("Deleting recording. Started at:", recordingStartTime ? recordingStartTime.toLocaleTimeString() : "Not available");
+    setIsRecording(false);
+    setIsPaused(false);
+    setAudioURL("");
+    setRecordingTime(0);
+    clearBlobUrl();
+  };
+
+  const logMetadata = async (blob, recordingTime) => {
+    // Extract and log basic metadata
+    console.log("Metadata:");
+    console.log("Type:", blob.type); // MIME type of the audio file
+    console.log("Size:", blob.size, "bytes"); // Size of the file
+    console.log("Recording Time:", formatTime(recordingTime)); // Log recording time
+
+    // Decode audio to get detailed metadata
+    const audioContext = new (window.AudioContext ||
+      window.webkitAudioContext)();
+    const arrayBuffer = await blob.arrayBuffer();
+    const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+
+    console.log("Duration:", formatTime(audioBuffer.duration)); // Format duration in MM:SS
+    console.log("Number of channels:", audioBuffer.numberOfChannels);
+    console.log("Sample rate:", audioBuffer.sampleRate, "Hz");
+    console.log("Length in samples:", audioBuffer.length);
+
+    audioContext.close();
+  };
+
+  const sendRecording = async () => {
+    if (audioURL) {
+      const response = await fetch(audioURL);
+      const blob = await response.blob();
+      await logMetadata(blob, recordingTime); // Log metadata before sending
+
+      // Use the appropriate MIME type based on the recorded file type
+      const audioFile = new File(
+        [blob],
+        "recording." + blob.type.split("/")[1],
+        { type: blob.type }
+      );
+      handleSendFile(audioFile);
+      deleteRecording();
+      onClose(); // Close the component after sending the recording
+    } else {
+      alert("No recording to send.");
+    }
+  };
+
+  const formatTime = (seconds) => {
+    const minutes = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  const handleEnd = () => {
+    // Reset or stop the AudioPlayer when the audio ends
+    console.log("Audio ended");
+  };
+
+  return (
+    <div className="voice-recorder">
+      <div className="controls">
+        {isRecording && !isPaused && (
+          <button
+            className="recoding-btn"
+            onClick={handleRecording}
+            aria-label="Stop recording"
+          >
+            <FaStop />
+          </button>
+        )}
+        {isPaused && (
+          <button
+            className="recoding-btn"
+            onClick={handleRecording}
+            aria-label="Resume recording"
+          >
+            <FaPause />
+          </button>
+        )}
+        {!isRecording && isPaused && (
+          <>
+            <AudioPlayer
+              className="audio-playback"
+              onEnd={handleEnd}
+              src={audioURL}
+              controls
+            />
+            <button
+              onClick={deleteRecording}
+              className="trash-btn control-btn"
+              aria-label="Delete recording"
+            >
+              <FaTrash />
+            </button>
+            <button
+              onClick={sendRecording}
+              className="control-btn"
+              aria-label="Send recording"
+            >
+              <VscSend />
+            </button>
+          </>
+        )}
+      </div>
+      <button
+        onClick={onClose}
+        className="close-btn"
+        aria-label="Close recorder"
+      >
+        <FaTimes />
+      </button>
+      {(isRecording || !isPaused) && (
+        <div className="timer">{formatTime(recordingTime)}</div>
+      )}
+    </div>
+  );
+};
+
+export default VoiceRecorder;

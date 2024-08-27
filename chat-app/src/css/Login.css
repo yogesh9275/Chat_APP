@@ -1,0 +1,23 @@
+/* Styles for the login container */
+.login-container {
+    background-color: #fff;
+    box-shadow: 0px 8px 8px 8px rgba(0, 0, 0, 0.299); /* Shadow effect */
+    padding: 20px; /* Padding inside the box */
+    border-radius: 8px; /* Rounded corners */
+  }
+  
+  
+  /* Optional: Adjust input width if needed */
+  .form-control {
+    max-width: 100%;
+  }
+  
+.d-flex .icon{
+    fill: black;
+}
+.btn {
+  border-radius: 50px !important;
+}
+.form-group {
+  text-align: left;
+}

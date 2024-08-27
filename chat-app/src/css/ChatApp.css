@@ -1,0 +1,57 @@
+.chat-app {
+    display: flex;
+    height: 100vh;
+    background-color: #212121;
+    color: white;
+  }
+  .chat-app.light-mode {
+    background-color: #fff;
+    color: #000;
+  }
+
+  /* Light mode styles */
+.chat-app.light-mode .icon {
+  fill: black;
+}
+/* Light mode styles */
+.chat-app.light-mode .message-input{
+  border-top: 1px solid black;
+}
+.chat-app.light-mode .message-input input {
+  background-color: #fff;
+  border: 1px solid black;
+}
+.chat-app.light-mode .message-input input::placeholder {
+  color: black;
+}
+.chat-app.light-mode .message-input input:focus {
+  color: black; 
+}
+
+.chat-app.light-mode .message-input input:focus::placeholder {
+  color: black; /* Optional: Change placeholder color on focus */
+}
+.chat-app.light-mode .message-input button {
+  background-color: transparent;
+}
+.chat-app.light-mode .rightbar {
+  background-color: #C7C8CC;
+}
+.chat-app.light-mode .chat{
+  border-bottom: 1px solid black;
+}
+.chat-app.light-mode .dropdown-menu{
+  background-color: #f9f9f9 !important;
+}
+.chat-app.light-mode .dropdown-item {
+  color: black !important;
+}
+.chat-app.light-mode .sidebar{
+  border-right: 1px solid black;
+}
+.chat-app.light-mode .chat-header{
+  border-bottom: 1px solid black;
+}
+.chat-app.light-mode .voice-recorder{
+  background-color: #C7C8CC;
+}

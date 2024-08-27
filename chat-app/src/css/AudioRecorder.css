@@ -1,0 +1,79 @@
+.voice-recorder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1px;
+    background-color: #333;
+    border-radius: 30px;
+    width: 100%;
+    height: 60px;
+    padding-left: 10px;
+    padding-right: 10px;
+    position: relative;
+    color: white;
+  }
+
+  
+.audio-recorder-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.audio-recorder-controls button {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 10px;
+    border: none;
+    background: transparent;
+    color: red;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+.audio-recorder-controls button:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+    color: white;
+}
+
+.timer-display {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.timer-display h3 {
+    margin: 0;
+}
+.recorder-controls{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.close-btn{
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 5px !important;
+    margin: 10px;
+    color: white;
+    font-size: 20px;
+    position: absolute;
+    bottom: 0;
+    right: 1%;
+  }
+
+  .send-btn{
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 5px !important;
+    margin: 10px;
+    color: white;
+    font-size: 20px;
+    position: absolute;
+    bottom: 0;
+    right: 5%;
+  }

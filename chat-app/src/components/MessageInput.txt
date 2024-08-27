@@ -1,0 +1,205 @@
+import React, { useState, useEffect, useRef } from "react";
+import "../css/MessageInput.css";
+import Picker from "emoji-picker-react";
+import GifSearchBox from "./GifSearchBox";
+import DropdownMenu from "./DropdownMenu"; // Import the DropdownMenu component
+import VoiceRecorder from "./VoiceRecorder"; // Import VoiceRecorder component
+
+const MessageInput = ({
+  message,
+  setMessage,
+  handleSendMessage,
+  handleSendFile, // Pass handleSendFile prop
+}) => {
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [showGifSearch, setShowGifSearch] = useState(false); // State to toggle GIF search popup
+  const [showDropdownMenu, setShowDropdownMenu] = useState(false);
+  const [showVoiceRecorder, setShowVoiceRecorder] = useState(false); // State for VoiceRecorder
+  const emojiPickerRef = useRef(null);
+  const gifSearchRef = useRef(null); // Ref for GIF search popup
+  const dropdownMenuRef = useRef(null); // Ref for dropdown menu
+
+  const handleSelectEmoji = (event, emojiObject) => {
+    const selectedEmoji = event.emoji || "Unknown Emoji";
+    setMessage((prevMessage) => prevMessage + selectedEmoji);
+    setShowEmojiPicker(false);
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault(); // Prevent form submission or new line
+      if (message.trim()) {
+        handleSendMessage(message); // Pass the message state to sendTextMessage
+        setMessage(""); // Clear message input after sending
+      }
+    }
+  };
+
+  const handleClickOutside = (event) => {
+    // Close emoji picker if clicked outside
+    if (
+      emojiPickerRef.current &&
+      !emojiPickerRef.current.contains(event.target)
+    ) {
+      setShowEmojiPicker(false);
+    }
+
+    // Close GIF search popup if clicked outside
+    if (gifSearchRef.current && !gifSearchRef.current.contains(event.target)) {
+      setShowGifSearch(false);
+    }
+
+    // Close dropdown menu if clicked outside
+    if (
+      dropdownMenuRef.current &&
+      !dropdownMenuRef.current.contains(event.target)
+    ) {
+      setShowDropdownMenu(false);
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  const handleGifSelect = async (gifUrl) => {
+    try {
+      const response = await fetch(gifUrl);
+      const blob = await response.blob();
+
+      // Create a File object with the type 'image/gif'
+      const gifFile = new File([blob], "image.gif", { type: "image/gif" });
+
+      // Debug: Log the File object to ensure it's correct
+      console.log(gifFile);
+
+      // Pass the File object directly to handleSendFile
+      handleSendFile(gifFile);
+
+      setShowGifSearch(false); // Close the GIF search popup after selecting a GIF
+    } catch (error) {
+      console.error("Failed to send GIF:", error);
+    }
+  };
+
+  // Toggle input and voice recorder visibility
+const handleVoiceButtonClick = () => {
+  setShowVoiceRecorder((prev) => !prev);
+  if (showVoiceRecorder) {
+    setMessage(''); // Optionally clear message when switching to voice recorder
+  }
+};
+
+return (
+  <>
+    {!showVoiceRecorder ? (
+      <div className="message-input">
+        <nav className="msg-links">
+          <button
+            className="feature-button"
+            onClick={() => setShowDropdownMenu((val) => !val)}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="25"
+              height="25"
+              fill="currentColor"
+              className="bi bi-paperclip icon"
+              viewBox="0 0 16 16"
+            >
+              <path d="M4.5 3a2.5 2.5 0 0 1 5 0v9a1.5 1.5 0 0 1-3 0V5a.5.5 0 0 1 1 0v7a.5.5 0 0 0 1 0V3a1.5 1.5 0 1 0-3 0v9a2.5 2.5 0 0 0 5 0V5a.5.5 0 0 1 1 0v7a3.5 3.5 0 1 1-7 0z" />
+            </svg>
+          </button>
+          <DropdownMenu
+            isOpen={showDropdownMenu}
+            onClose={() => setShowDropdownMenu(false)}
+            handleSendFile={handleSendFile}
+            ref={dropdownMenuRef} // Pass ref to DropdownMenu
+          />
+        </nav>
+        
+        <input
+          type="text"
+          placeholder="Write a message..."
+          value={message}
+          onChange={(e) => setMessage(e.target.value)} // Update input value in state
+          onKeyDown={handleKeyDown} // Handle Enter key press
+        />
+        {showEmojiPicker && (
+          <div className="emoji-picker-container" ref={emojiPickerRef}>
+            <Picker onEmojiClick={handleSelectEmoji} />
+          </div>
+        )}
+        {showGifSearch && (
+          <div className="gif-search-popup" ref={gifSearchRef}>
+            <GifSearchBox
+              onGifSelect={handleGifSelect} // Pass the handleGifSelect function
+              onClose={() => setShowGifSearch(false)} // Option to close the GIF search
+            />
+          </div>
+        )}
+        <nav className="msg-links">
+          <button
+            className="feature-button"
+            onClick={() => setShowEmojiPicker((val) => !val)}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="25"
+              height="25"
+              fill="currentColor"
+              className="bi bi-emoji-smile icon"
+              viewBox="0 0 16 16"
+            >
+              <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16" />
+              <path d="M4.285 9.567a.5.5 0 0 1 .683.183A3.5 3.5 0 0 0 8 11.5a3.5 3.5 0 0 0 3.032-1.75.5.5 0 1 1 .866.5A4.5 4.5 0 0 1 8 12.5a4.5 4.5 0 0 1-3.898-2.25.5.5 0 0 1 .183-.683M7 6.5C7 7.328 6.552 8 6 8s-1-.672-1-1.5S5.448 5 6 5s1 .672 1 1.5m4 0c0 .828-.448 1.5-1 1.5s-1-.672-1-1.5S9.448 5 10 5s1 .672 1 1.5" />
+            </svg>
+          </button>
+          <button
+            className="feature-button"
+            onClick={() => setShowGifSearch((val) => !val)} // Toggle GIF search popup
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="25"
+              height="25"
+              fill="currentColor"
+              className="bi bi-filetype-gif icon"
+              viewBox="0 0 16 16"
+            >
+              <path
+                fillRule="evenodd"
+                d="M14 4.5V14a2 2 0 0 1-2 2H9v-1h3a1 1 0 0 0 1-1V4.5h-2A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v9H2V2a2 2 0 0 1 2-2h5.5zM3.278 13.124a1.4 1.4 0 0 0-.14-.492 1.3 1.3 0 0 0-.314-.407 1.5 1.5 0 0 0-.48-.275 1.9 1.9 0 0 0-.636-.1q-.542 0-.926.229a1.5 1.5 0 0 0-.583.632 2.1 2.1 0 0 0-.199.95v.506q0 .408.105.745.105.336.32.58.213.243.533.377.323.132.753.132.402 0 .697-.111a1.29 1.29 0 0 0 .788-.77q.097-.261.097-.551v-.797H1.717v.589h.823v.255q0 .199-.09.363a.67.67 0 0 1-.273.264 1 1 0 0 1-.457.096.87.87 0 0 1-.519-.146.9.9 0 0 1-.305-.413 1.8 1.8 0 0 1-.096-.615v-.499q0-.547.234-.85.237-.3.665-.301a1 1 0 0 1 .3.044q.136.044.236.126a.7.7 0 0 1 .17.19.8.8 0 0 1 .097.25zm1.353 2.801v-3.999H3.84v4h.79Zm1.493-1.59v1.59h-.791v-3.999H7.88v.653H6.124v1.117h1.605v.638z"
+              />
+            </svg>
+          </button>
+          <button
+            className="feature-button"
+            onClick={handleVoiceButtonClick} // Toggle VoiceRecorder
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="25"
+              height="25"
+              fill="currentColor"
+              className="bi bi-mic icon"
+              viewBox="0 0 16 16"
+            >
+              <path d="M3.5 6.5A.5.5 0 0 1 4 7v1a4 4 0 0 0 8 0V7a.5.5 0 0 1 1 0v1a5 5 0 0 1-4.5 4.975V15h3a.5.5 0 0 1 0 1h-7a.5.5 0 0 1 0-1h3v-2.025A5 5 0 0 1 3 8V7a.5.5 0 0 1 .5-.5" />
+              <path d="M10 8a2 2 0 1 1-4 0V3a2 2 0 1 1 4 0zM8 0a3 3 0 0 0-3 3v5a3 3 0 0 0 6 0V3a3 3 0 0 0-3-3" />
+            </svg>
+          </button>
+        </nav>
+      </div>
+    ) : (
+      <VoiceRecorder
+        onClose={() => setShowVoiceRecorder(false)} // Close button in VoiceRecorder component
+      />
+    )}
+  </>
+);
+}
+export default MessageInput;

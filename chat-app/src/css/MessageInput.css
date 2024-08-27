@@ -1,0 +1,80 @@
+.message-input {
+  display: flex;
+  padding: 10px;
+  border-top: 1px solid #dddddd;
+}
+
+.message-input input {
+  background-color: #2f2f2f;
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #dddddd;
+  border-radius: 20px;
+  outline: none;
+  font-size: medium;
+}
+.message-input input::placeholder {
+  color: #ffffff; /* Placeholder text color */
+  opacity: 1; /* Ensure the placeholder is fully opaque */
+}
+.message-input input:focus {
+  color: #fff; /* Text color when input is focused */
+  background-color: #2f2f2f; /* Optional: Change background color on focus */
+  border-color: #bbb; /* Optional: Change border color on focus */
+}
+
+.message-input input:focus::placeholder {
+  color: #ccc; /* Optional: Change placeholder color on focus */
+}
+.message-input-container {
+  position: relative;
+}
+
+.msg-links {
+  display: flex;
+  flex-direction: row;
+}
+
+.msg-links a {
+  color: #fff;
+  text-decoration: none;
+  padding: 10px;
+  border-radius: 4px;
+  margin-bottom: 10px;
+  transition: background-color 0.3s;
+}
+
+.msg-links a:hover {
+  background-color: #444;
+}
+
+.feature-button {
+  background: transparent;
+  border: none;
+  border-radius: 30px;
+  padding: 5px;
+  margin: 5px;
+  height: 45px; /* Adjust height as needed */
+  width: 45px; /* Adjust width as needed */
+  transition: background-color 0.3s ease; /* Smooth transition for background color */
+}
+
+.emoji-picker-container {
+  position: absolute;
+  bottom: 85px; /* Adjust based on your layout */
+  right: 10px;   /* Adjust based on your layout */
+  z-index: 1000;
+}
+
+/* DropdownMenu.css */
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.feature-button {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+}
+

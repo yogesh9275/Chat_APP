@@ -1,0 +1,67 @@
+// DropdownMenu.js
+import React from "react";
+import "../css/DropdownMenu.css"; // Make sure to create this CSS file
+
+const DropdownMenu = ({ isOpen, onClose }) => {
+  
+  // Handler for file input changes
+  const handleFileChange = (event, fileType) => {
+    const files = event.target.files;
+    if (files.length > 0) {
+      console.log(`Selected ${fileType}:`, files);
+      // Implement your file upload logic here
+    }
+  };
+
+  return (
+    <>
+      {isOpen && (
+        <>
+          <div className="dropdown-backdrop" onClick={onClose} />
+          <div className="dropdown-menu show">
+            <button
+              className="dropdown-item"
+              onClick={() => document.getElementById('image-upload').click()}
+            >
+              Potos & Videos
+              <input
+                type="file"
+                id="image-upload"
+                accept="image/*,video/*"
+                style={{ display: 'none' }}
+                onChange={(e) => handleFileChange(e, 'pictures and videos')}
+              />
+            </button>
+            <button
+              className="dropdown-item"
+              onClick={() => document.getElementById('document-upload').click()}
+            >
+              Document
+              <input
+                type="file"
+                id="document-upload"
+                accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx"
+                style={{ display: 'none' }}
+                onChange={(e) => handleFileChange(e, 'documents')}
+              />
+            </button>
+            <button
+              className="dropdown-item"
+              onClick={() => document.getElementById('file-upload').click()}
+            >
+              Upload Any File
+              <input
+                type="file"
+                id="file-upload"
+                style={{ display: 'none' }}
+                onChange={(e) => handleFileChange(e, 'files')}
+              />
+            </button>
+          </div>
+        </>
+      )}
+    </>
+  );
+};
+
+export default DropdownMenu;

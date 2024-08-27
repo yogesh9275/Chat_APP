@@ -1,0 +1,92 @@
+import React, { useState, useEffect } from 'react';
+import '../css/Sidebar.css';
+
+const Sidebar = ({  isVisible,senderUsername, lastMessage, messageCount, setChatName }) => {
+  // State to manage chat entries
+  const [chats, setChats] = useState([]);
+
+  // Function to add or update chat entry
+  const addOrUpdateChat = (username, message, count) => {
+    setChats((prevChats) => {
+      const existingChatIndex = prevChats.findIndex(chat => chat.username === username);
+
+      if (existingChatIndex > -1) {
+        // Update existing chat
+        const updatedChats = [...prevChats];
+        updatedChats[existingChatIndex] = {
+          ...updatedChats[existingChatIndex],
+          lastMessage: message,
+          messageCount: count,
+        };
+        return updatedChats;
+      } else {
+        // Add new chat
+        return [
+          ...prevChats,
+          {
+            username: username,
+            lastMessage: message,
+            messageCount: count,
+          },
+        ];
+      }
+    });
+  };
+
+  // Click handler to reset message count and update chat name
+  const handleChatClick = (username) => {
+    // Reset message count to 0 for the clicked chat
+    setChats((prevChats) => 
+      prevChats.map((chat) =>
+        chat.username === username
+          ? { ...chat, messageCount: 0 } // Reset message count to 0 for clicked chat
+          : chat
+      )
+    );
+
+   // Update the current chat name with the clicked username
+   if (setChatName) {
+    setChatName(username);
+  }
+  };
+
+  // Use effect to handle updates based on props changes
+  useEffect(() => {
+    console.log('Received senderUsername:', senderUsername);
+    if (senderUsername) {
+      addOrUpdateChat(senderUsername, lastMessage, messageCount);
+    }
+  }, [senderUsername, lastMessage, messageCount]);
+
+  return (
+    <div className={`sidebar-container ${isVisible ? 'visible' : ''}`}>
+      <div className="sidebar">
+        <div className="sidebar-header">
+          <input type="text" placeholder="Search..." />
+        </div>
+        <div className="sidebar-chats">
+          {chats.map((chat, index) => (
+            <div
+              className="chat"
+              key={index}
+              onClick={() => handleChatClick(chat.username)} // Pass username to handler
+            >
+              <div className="chat-avatar">{chat.username.charAt(0)}</div>
+              <div className="chat-info">
+                <div className="chat-name">{chat.username}</div>
+                <div className="chat-last-message">{chat.lastMessage}</div>
+              </div>
+              {chat.messageCount > 0 && (
+                <div className="message-counter">
+                  {chat.messageCount > 99 ? '99+' : chat.messageCount}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Sidebar;

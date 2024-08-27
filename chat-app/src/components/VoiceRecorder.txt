@@ -1,0 +1,93 @@
+import "../css/VoiceRecorder.css";
+import React, { useState, useEffect } from 'react';
+import { FaMicrophone, FaStop, FaTrash, FaTimes } from 'react-icons/fa';
+import { VscSend } from "react-icons/vsc";
+import { useReactMediaRecorder } from "react-media-recorder";
+import { AudioPlayer } from 'react-audio-play';
+
+const VoiceRecorder = ({ onClose, handleSendFile }) => {
+  const [hasRecording, setHasRecording] = useState(false);
+  const [audioURL, setAudioURL] = useState("");
+  const [isRecording, setIsRecording] = useState(false);
+
+  const {
+    startRecording,
+    stopRecording,
+    mediaBlobUrl,
+    clearBlobUrl
+  } = useReactMediaRecorder({ audio: true });
+
+  useEffect(() => {
+    if (mediaBlobUrl) {
+      setAudioURL(mediaBlobUrl);
+      setHasRecording(true);
+      setIsRecording(false);
+    }
+  }, [mediaBlobUrl]);
+
+  const startStopResumeRecording = () => {
+    if (isRecording) {
+      stopRecording();
+      setIsRecording(false);
+    } else {
+      if (hasRecording) {
+        stopRecording();
+        setHasRecording(false);
+      } else {
+        startRecording();
+        setIsRecording(true);
+      }
+    }
+  };
+
+  const deleteRecording = () => {
+    setHasRecording(false);
+    setIsRecording(false);
+    setAudioURL("");
+    clearBlobUrl();
+  };
+
+  const sendRecording = async () => {
+    if (audioURL) {
+      const response = await fetch(audioURL);
+      const blob = await response.blob();
+      const mp3File = new File([blob], "recording.mp3", { type: "audio/mp3" });
+      handleSendFile(mp3File);
+      deleteRecording();
+    } else {
+      alert("No recording to send.");
+    }
+  };
+
+  return (
+    <div className="voice-recorder">
+      <div className="controls">
+        <button className="recoding-btn" onClick={startStopResumeRecording} aria-label={hasRecording ? 'Stop' : 'Start'}>
+          {hasRecording ? <FaStop /> : <FaMicrophone />}
+        </button>
+        {hasRecording && (
+          <>
+            <AudioPlayer
+              className="audio-playback"
+              src={audioURL}
+              controls
+            />
+            <button onClick={deleteRecording} className=" trash-btn control-btn" aria-label="Delete recording">
+              <FaTrash />
+            </button>
+          </>
+        )}
+      </div>
+      {audioURL && (
+        <button onClick={sendRecording} className="control-btn" aria-label="Send recording">
+          <VscSend />
+        </button>
+      )}
+      <button onClick={onClose} className="close-btn" aria-label="Close recorder">
+        <FaTimes />
+      </button>
+    </div>
+  );
+};
+
+export default VoiceRecorder;

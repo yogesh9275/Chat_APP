@@ -1,0 +1,148 @@
+/* Container for both sidebars */
+.sidebar-container {
+  /* Default visible style (change as needed) */
+  display: block;
+   /* Other styling properties */
+}
+/* Hide Sidebar on smaller screens */
+@media (max-width: 768px) {
+  .sidebar-container.hidden {
+    display: none; /* Hide sidebar on smaller screens */
+  }
+}
+
+
+/* Optionally, you can add styles for when the sidebar is toggled */
+.sidebar-container.visible {
+  transform: translateX(0); /* Show sidebar */
+}
+
+.sidebar-container.hidden {
+  transform: translateX(-100%); /* Hide sidebar off-screen */
+}
+.sidebar {
+  width: 300px;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid #dddddd;
+}
+/* Button to open the right sidebar */
+.open-right-sidebar {
+  background: #444;
+  color: #fff;
+  border: none;
+  padding: 10px;
+  cursor: pointer;
+  margin-bottom: 10px;
+}
+/* Position the RightSidebar on the left side of the Sidebar */
+.sidebar-container .sidebar {
+  position: relative;
+}
+
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  background-color: #6200ea;
+  color: #ffffff;
+}
+
+.sidebar-header input {
+  flex: 1;
+  padding: 5px;
+  margin-right: 10px;
+  border: none;
+  border-radius: 20px;
+}
+
+.dark-mode-toggle {
+  background-color: transparent;
+  border: none;
+  color: #ffffff;
+  cursor: pointer;
+}
+
+.sidebar-chats {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.chat {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  cursor: pointer;
+  border-bottom: 1px solid white;
+}
+
+.chat-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #B4B4B8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: bold;
+  color: #ffffff;
+}
+
+.sidebar-info {
+  margin-left: 10px;
+  max-width: 70%; /* Adjust this based on your layout */
+  width: 70%;
+}
+
+.chat-name {
+  font-weight: bold;
+}
+
+.chat-last-message {
+  color: #888888;
+  white-space: nowrap; /* Prevent text from wrapping */
+  overflow: hidden; /* Hide overflowing text */
+  text-overflow: ellipsis; /* Add ellipsis if text is too long */
+ 
+}
+.message-counter {
+  background-color: red; /* Adjust as needed */
+  color: white; /* Adjust as needed */
+  border-radius: 50%;
+  width: 25px; /* Adjust as needed */
+  height: 25px; /* Adjust as needed */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px; /* Adjust as needed */
+  font-weight: bold;
+  cursor: pointer; /* Indicates that the counter is clickable */
+  user-select: none; /* Prevents text selection on click */
+}
+
+.sidebar-text {
+  display: flex;
+  align-items: center;
+}
+
+.icon-column {
+  margin-right: 8px; /* Space between the icon and the message */
+  flex-shrink: 0; /* Prevent the icon from shrinking */
+}
+
+.message-column {
+  overflow: hidden; /* Hide overflowed content */
+  text-overflow: ellipsis; /* Add ellipsis (...) for overflowed text */
+  white-space: nowrap; /* Prevent text from wrapping to the next line */
+  flex-grow: 1; /* Allow the message to take up remaining space */
+}
+
+
+
+.sidebar svg {
+  margin-right: 5px; /* Adjust the spacing between the icon and the text */
+  margin-left: 5px;
+  fill: white;
+}
